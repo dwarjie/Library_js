@@ -1,0 +1,164 @@
+:root {
+    background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+    font-size: 62.5%;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    color: #334443;
+    font-family: 'Poppins', sans-serif;
+}
+
+h1,
+h2 {
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: 4.2rem;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+h2 {
+    font-size: 2rem;
+    font-weight: 400;
+}
+
+p {
+    font-size: 1.6rem;
+}
+
+i {
+    color: #e1e1e1;
+}
+
+button {
+    cursor: pointer;
+}
+
+input {
+    margin-top: .5rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    font-size: 2rem;
+}
+
+.container {
+    width: 100vw;
+    height: 100vh;
+    margin: 0 auto;
+    padding: 3rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.book-form{
+    /* background-color: #a7bbc7; */
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+}
+
+form {
+    padding: 1rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+#pages {
+    margin-bottom: 5rem;
+}
+
+form button {
+    background-color: #194350;
+    color: #e1e1e1;
+    border: none;
+    font-weight: 700;
+    padding: .8rem 0;
+    margin: .8rem 4rem;
+    transition: all ease-out .2s;
+}
+
+form button:hover {
+    color: #194350;
+    background-color: #e1e1e1;
+}
+
+.book-table {
+    width: 70%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+}
+
+.book-table h2 {
+    width: 70%;
+}
+
+#items {
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#book-item {
+    min-width: 95%;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    background-color: #194350;
+    border-radius: .5rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+#book-item p {
+    color: #e1e1e1;
+}
+
+#book-item > * {
+    margin-right: auto;
+}
+
+#book-item .item-prop {
+    margin-right: 0;
+}
+
+.item-prop button {
+    margin-right: .2rem;
+    padding: 1.5rem;
+    border-radius: .5rem;
+    border: none;
+}
+
+#btnStatus {
+    cursor: pointer;
+}
+
+#btnDel {
+    background-color: #e62939;
+    cursor: pointer;
+}
+
+.Finished {
+    background-color: rgb(33, 186, 99);
+}
+
+.Unfinished i {
+    color: #334443;
+}
+
+
+
+
+
