@@ -7,6 +7,7 @@ const pagesForm = document.querySelector('#pages');
 const readBtn = document.querySelector('#readToggle');
 const addBtn = document.querySelector('#addBtn');
 
+// CONSTANTS
 const STORAGE_NAME = 'library';
 const STORAGE_ID = 'bookId';
 const FILLER_DATA = [
@@ -24,12 +25,12 @@ const FILLER_DATA = [
         pages: '216',
         status: 'Unfinished',
     }
-]
+];
 
-
+// Bind events
 addBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    addBookLibrary();
+    Book.addBookLibrary();
 });
 
 readBtn.addEventListener('click', (e) => {
@@ -42,112 +43,140 @@ readBtn.addEventListener('click', (e) => {
     }
 });
 
-function Book(id, author, title, pages, status) {
-    this.id = id;
-    this.author = author;
-    this.title = title;
-    this.pages = pages;
-    this.status = status;
-}
+// CLASSES
+class RenderElement {
+    // Class for rendering the book list
+    render() {
+        items.innerHTML = myLibrary.map((book) => {
+            return `
+            <div id="book-item">
+                <p>${book.title}</p>
+                <p>${book.author}</p>
+                <p>${book.pages}</p>
+                <div class="item-prop">
+                    <button id="btnStatus" class="${book.status}"><i class="fas fa-check"></i></button>
+                    <button id="btnDel" data-id="${book.id}"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        }).join('');
 
-addBookLibrary = () => {
-    const bookStatus = readBtn.innerText;
-    const bookItem = new Book(bookId, authorForm.value, titleForm.value, pagesForm.value, bookStatus);
-    bookId++;
-    myLibrary.push(bookItem);
-    saveData();
+        let statusBtn = document.querySelectorAll('#btnStatus');
+        let delBtn = document.querySelectorAll('#btnDel');
 
-    clearForm();
-    render();
-}
+        statusBtn.forEach(btn => {
+            btn.addEventListener('click', (e) => Book.updateBook(e));
+        });
+        
+        delBtn.forEach(btn => {
+            btn.addEventListener('click', (e) => Book.deleteBook(e));
+        });
+    }
 
-searchBook = (dataId) => {
-    for(let item of myLibrary) {
-        if (item.id == dataId) {
-            console.log('found');
-            return myLibrary.indexOf(item);
+    clearForm() {
+        authorForm.value = '';
+        titleForm.value = '';
+        pagesForm.value = '';
+        readBtn.innerText = 'Finished';
+    };
+};
+
+class LocalData {
+    renderElem = new RenderElement();
+
+    // This class if for loading and sacing data from the local storage
+    loadProgram() {
+        const getBooks = JSON.parse(localStorage.getItem(STORAGE_NAME));
+        const getId = JSON.parse(localStorage.getItem(STORAGE_ID));
+        if (getBooks && getBooks.length != 0) {
+            const storedBooks = getBooks;
+            const storedId = getId;
+            myLibrary = [...storedBooks];
+            bookId = parseInt(storedId);
+            console.log('loaded');
+        } else {
+            myLibrary = [...FILLER_DATA];
+            bookId = 2;
+            console.log('default');
         }
+        storage.saveData();
+        this.renderElem.render();
     }
 
-    console.log('Not found');
-};
-
-updateBook = (e) => {
-    const itemId = e.target.nextElementSibling.dataset.id;
-    const key = Object.keys(myLibrary)[searchBook(itemId)];
-    let book = myLibrary[key].status;
-    if(book == 'Unfinished') {
-        myLibrary[key].status = 'Finished';
-    } else {
-        myLibrary[key].status = 'Unfinished';
+    saveData() {
+        localStorage.setItem(STORAGE_NAME, JSON.stringify(myLibrary));
+        localStorage.setItem(STORAGE_ID, bookId);
     }
-    render();
-    saveData();
 };
 
-deleteBook = (e) => {
-    let itemId = e.target.dataset.id;
-    console.log(itemId);
-    myLibrary.splice(searchBook(itemId), 1);
-    saveData();
-    render();
-};
+class Book {
+    renderElem = new RenderElement();
+    storage = new LocalData();
 
-render = () => {
-    items.innerHTML = myLibrary.map((book) => {
-        return `
-        <div id="book-item">
-            <p>${book.title}</p>
-            <p>${book.author}</p>
-            <p>${book.pages}</p>
-            <div class="item-prop">
-                <button id="btnStatus" class="${book.status}"><i class="fas fa-check"></i></button>
-                <button id="btnDel" data-id="${book.id}"><i class="fas fa-trash"></i></button>
-            </div>
-        </div>`;
-    }).join('');
+    // This class is for making a new book, updating, searching and deleting
+    constructor(id, author, title, pages, status) {
+        this.id = id;
+        this.autor = author;
+        this.title = title;
+        this.pages = pages;
+        this.status = status;
+    }
 
-    let statusBtn = document.querySelectorAll('#btnStatus');
-    let delBtn = document.querySelectorAll('#btnDel');
+    // add books to the library
+    // some methods are static because there are no constructor overloading in js
+    static addBookLibrary() {
+        const bookStatus = readBtn.innerText;
+        const bookItem = new Book(bookId, authorForm.value, titleForm.value, pagesForm.value, bookStatus);
+        bookId++;
+        myLibrary.push(bookItem);
+        this.storage.saveData();
 
-    statusBtn.forEach(btn => {
-        btn.addEventListener('click', (e) => updateBook(e));
-    });
-    
-    delBtn.forEach(btn => {
-        btn.addEventListener('click', (e) => deleteBook(e));
-    });
+        this.renderElem.clearForm();
+        this.renderElem.render();
+    }
+
+    // search book in the list
+    searchBook(dataId) {
+        for(let item of myLibrary) {
+            if (item.id == dataId) {
+                console.log('found');
+                return myLibrary.indexOf(item);
+            }
+        }
+        console.log('Not found');
+    }
+
+    // update the book
+    static updateBook(e) {
+        console.log(e.target.nextElementSibling);
+        const itemId = e.target.nextElementSibling.dataset.id;
+        const key = Object.keys(myLibrary)[searchBook(itemId)];
+        let book = myLibrary[key].status;
+        if(book == 'Unfinished') {
+            myLibrary[key].status = 'Finished';
+        } else {
+            myLibrary[key].status = 'Unfinished';
+        }
+        this.renderElem.render();
+        this.storage.saveData();
+    }
+
+    // delete book
+    static deleteBook(e) {
+        let itemId = e.target.dataset.id;
+        console.log(itemId);
+        myLibrary.splice(searchBook(itemId), 1);
+        
+        this.storage.saveData();
+        this.renderElem.render();
+    };
 }
 
-clearForm = () => {
-    authorForm.value = '';
-    titleForm.value = '';
-    pagesForm.value = '';
-    readBtn.innerText = 'Finished';
-};
-
-loadProgram = () => {
-    const getBooks = JSON.parse(localStorage.getItem(STORAGE_NAME));
-    const getId = JSON.parse(localStorage.getItem(STORAGE_ID));
-    if (getBooks && getBooks.length != 0) {
-        const storedBooks = getBooks;
-        const storedId = getId;
-        myLibrary = [...storedBooks];
-        bookId = parseInt(storedId);
-        console.log('loaded');
-    } else {
-        myLibrary = [...FILLER_DATA];
-        bookId = 2;
-        console.log('default');
-    }
-    saveData();
-    render();
-};
-
-saveData = () => {
-    localStorage.setItem(STORAGE_NAME, JSON.stringify(myLibrary));
-    localStorage.setItem(STORAGE_ID, bookId);
-}
-
-
-loadProgram();
+// function Book(id, author, title, pages, status) {
+//     this.id = id;
+//     this.author = author;
+//     this.title = title;
+//     this.pages = pages;
+//     this.status = status;
+// }
+const storage = new LocalData();
+storage.loadProgram();
