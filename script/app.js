@@ -30,7 +30,9 @@ const FILLER_DATA = [
 // Bind events
 addBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    Book.addBookLibrary();
+
+    let bookList = new BookList();
+    bookList.addBookLibrary();
 });
 
 readBtn.addEventListener('click', (e) => {
@@ -63,12 +65,13 @@ class RenderElement {
         let statusBtn = document.querySelectorAll('#btnStatus');
         let delBtn = document.querySelectorAll('#btnDel');
 
+        let bookList = new BookList();
         statusBtn.forEach(btn => {
-            btn.addEventListener('click', (e) => Book.updateBook(e));
+            btn.addEventListener('click', (e) => bookList.updateBook(e));
         });
         
         delBtn.forEach(btn => {
-            btn.addEventListener('click', (e) => Book.deleteBook(e));
+            btn.addEventListener('click', (e) => bookList.deleteBook(e));
         });
     }
 
@@ -109,10 +112,7 @@ class LocalData {
 };
 
 class Book {
-    renderElem = new RenderElement();
-    storage = new LocalData();
-
-    // This class is for making a new book, updating, searching and deleting
+    // This class is for making a new book
     constructor(id, author, title, pages, status) {
         this.id = id;
         this.autor = author;
@@ -120,10 +120,15 @@ class Book {
         this.pages = pages;
         this.status = status;
     }
+}
+
+class BookList {
+    // This class if for manipulating the book list (add, edit, delete, update)
+    renderElem = new RenderElement();
+    storage = new LocalData();
 
     // add books to the library
-    // some methods are static because there are no constructor overloading in js
-    static addBookLibrary() {
+    addBookLibrary() {
         const bookStatus = readBtn.innerText;
         const bookItem = new Book(bookId, authorForm.value, titleForm.value, pagesForm.value, bookStatus);
         bookId++;
@@ -136,7 +141,7 @@ class Book {
 
     // search book in the list
     searchBook(dataId) {
-        for(let item of myLibrary) {
+        for (let item of myLibrary) {
             if (item.id == dataId) {
                 console.log('found');
                 return myLibrary.indexOf(item);
@@ -146,10 +151,10 @@ class Book {
     }
 
     // update the book
-    static updateBook(e) {
+    updateBook(e) {
         console.log(e.target.nextElementSibling);
         const itemId = e.target.nextElementSibling.dataset.id;
-        const key = Object.keys(myLibrary)[searchBook(itemId)];
+        const key = Object.keys(myLibrary)[this.searchBook(itemId)];
         let book = myLibrary[key].status;
         if(book == 'Unfinished') {
             myLibrary[key].status = 'Finished';
@@ -161,15 +166,15 @@ class Book {
     }
 
     // delete book
-    static deleteBook(e) {
+    deleteBook(e) {
         let itemId = e.target.dataset.id;
         console.log(itemId);
-        myLibrary.splice(searchBook(itemId), 1);
+        myLibrary.splice(this.searchBook(itemId), 1);
         
         this.storage.saveData();
         this.renderElem.render();
-    };
-}
+    }
+};
 
 // function Book(id, author, title, pages, status) {
 //     this.id = id;
